@@ -11,6 +11,11 @@ namespace Server.Interfaces
     {
         private readonly List<Car> _Cars = new();
         public Command command = new Command();
+
+        public Repository()
+        {
+            
+        }
         public bool Add(Car car)
         {
             if (car != null)

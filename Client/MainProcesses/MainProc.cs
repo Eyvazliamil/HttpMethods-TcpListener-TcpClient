@@ -6,35 +6,34 @@ using System.Net.Sockets;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
+using Server.Interfaces;
 
 namespace Client.MainProcesses
 {
     public class MainProc
-    {
+    { 
         public static void MethodForMainProgram()
         { 
             string[] methods = { "Add", "Delete", "GetAll", "GetByld", "Update", "Exit" }; 
-            var car = new Car();
 
-            var client = new TcpClient("127.0.0.1", 27001);
-            //var stream = client.GetStream();
-
-            //var bw = new BinaryWriter(stream);
-            //var br = new BinaryReader(stream); 
-             
             while (true)
             {
                 short ind_m = Client.MenuHelper.ManageMenu.ShowMenu(methods, "================ METHODS ================");
                 switch (ind_m)
                 {
                     case 0:
-                        {
+                        { 
+                            Car car = new Car();
                             try
                             {
                                 Console.Clear();
                                 Console.ForegroundColor = ConsoleColor.DarkMagenta;
                                 Console.WriteLine("Please enter properties of car.");
                                 Console.ResetColor();
+
+                                Console.Write("Id: ");
+                                car.Id = ushort.Parse(Console.ReadLine()!);
+
                                 Console.Write("Make: ");
                                 car.Make = Console.ReadLine();
 
@@ -50,6 +49,8 @@ namespace Client.MainProcesses
                                 Console.Write("Color: ");
                                 car.Color = Console.ReadLine();
 
+                                //repository.Add(car);
+
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("Car added successfully!");
                                 Console.ResetColor();
@@ -59,19 +60,42 @@ namespace Client.MainProcesses
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
                                 Console.WriteLine($"Error: {ex.Message}");
-                                Console.ResetColor(); 
+                                Console.ResetColor();
                                 Console.ReadKey();
                             }
                             break;
                         }
                     case 1:
-                        break;
+                        {
+                            Console.Clear();
+                            Console.Write("Enter an id to delete: ");
+
+                            ushort id = ushort.Parse(Console.ReadLine()!);
+                            //repository.Delete(id);
+                            Console.ReadKey();
+                            break;
+                        }
                     case 2:
-                        break;
+                        {
+                            Console.Clear();
+                            Console.WriteLine("========== All Cars ==========");
+                            //repository.GetAll();
+                            break;
+                        }
                     case 3:
-                        break;
+                        {
+                            Console.Clear();
+                            Console.WriteLine("========== Get By Id ==========");
+                            Console.Write("Enter an id to get: ");
+                            short id = Convert.ToInt16(Console.ReadLine());
+                            //repository.GetByld(id);
+                            break;
+                        }
                     case 4:
-                        break;
+                        { 
+                            //repository.Update(car);
+                            break;
+                        }
                     case 5:
                         return;
                 } 
