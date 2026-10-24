@@ -27,18 +27,12 @@ class Program
             try
             {
                 string command = reader.ReadString(); 
-
+                 
                 if (command == "Add")
                 {
-                    Car car = new Car
-                    {
-                        Id = reader.ReadUInt16(),
-                        Make = reader.ReadString(),
-                        Model = reader.ReadString(),
-                        Year = reader.ReadUInt16(),
-                        VIN = reader.ReadString(),
-                        Color = reader.ReadString()
-                    };
+                    Car car = ReadCar(reader);
+
+                    Console.WriteLine($"Received car: {car.Id}");
 
                     bool result = repository.Add(car);
 
@@ -54,7 +48,8 @@ class Program
 
                     writer.Write(result);
                     Console.WriteLine(result ? $"Car {id} deleted." : $"Car {id} not found.");
-                    break;
+                    writer.Write(result);
+                    writer.Flush();
                 }
                 else if(command == "GetAll")
                 {
@@ -65,8 +60,8 @@ class Program
                     foreach (Car car in cars)
                         WriteCar(writer, car);
 
-                    Console.WriteLine($"Sent {cars.Count} cars to client.");
-                    break;
+                    Console.WriteLine($"Sent {cars.Count} cars to client.");  
+                    writer.Flush();
 
                 }
                 else if(command == "GetById")
@@ -78,8 +73,7 @@ class Program
 
                     if (car != null)
                         WriteCar(writer, car); 
-
-                    break; 
+                    writer.Flush();
                 }
                 else if(command == "Update")
                 {
@@ -87,8 +81,9 @@ class Program
                     bool result = repository.Update(car);
 
                     writer.Write(result);
-                    Console.WriteLine( result ? $"Car {car.Id} updated." : $"Car {car.Id} not found.");
-                    break;
+                    Console.WriteLine( result ? $"Car {car.Id} updated." : $"Car {car.Id} not found."); 
+                    writer.Write(result);
+                    writer.Flush();
                 }
             }
             catch (Exception ex)
@@ -104,10 +99,10 @@ class Program
         {
             return new Car
             {
-                Id = reader.ReadUInt16(),
+                Id = reader.ReadInt32(),
                 Make = reader.ReadString(),
-                Model = reader.ReadString(),
-                Year = reader.ReadUInt16(),
+                Model = reader.ReadString(), 
+                Year = reader.ReadBoolean() ? reader.ReadUInt16() : null, 
                 VIN = reader.ReadString(),
                 Color = reader.ReadString()
             };
@@ -118,7 +113,11 @@ class Program
             writer.Write(car.Id);
             writer.Write(car.Make ?? "");
             writer.Write(car.Model ?? "");
-            writer.Write(Convert.ToBoolean(car.Year));
+
+            writer.Write(car.Year.HasValue);
+            if (car.Year.HasValue)
+                writer.Write(car.Year.Value);
+
             writer.Write(car.VIN ?? "");
             writer.Write(car.Color ?? "");
         }
